@@ -6,42 +6,142 @@
   <style>
     body {
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       background: linear-gradient(135deg, #ffdee9, #b5fffc);
       font-family: sans-serif;
+      overflow: hidden;
+      position: relative;
     }
-    .carte {
-      width: 0;
+    .parchemin-container {
+      width: 60vw;
+      max-width: 800px;
+      height: 80vh;
+      min-height: 300px;
+      background: #f5e5b8;
+      border-radius: 20px;
+      box-shadow: 0 10px 50px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow: hidden;
+      position: relative;
+      border: 8px solid #d2b48c;
+    }
+    .parchemin {
+      width: 100%;
       height: 0;
-      border: none;
       opacity: 0;
-      animation: ouvrir 2s ease forwards;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      border-radius: 8px;
+      transition:
+        height 2.5s cubic-bezier(0.77,0,0.175,1),
+        opacity 1.2s;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+      background: transparent;
+      display: block;
     }
-    @keyframes ouvrir {
-      0% {
-        width: 0;
-        height: 0;
-        opacity: 0;
-        transform: scale(0.1) rotateX(90deg);
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        width: 80vw;   /* largeur finale */
-        height: 90vh;  /* hauteur finale */
-        transform: scale(1) rotateX(0);
-      }
+    .parchemin.visible {
+      height: 72vh;
+      opacity: 1;
+    }
+    #confettis {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 10;
+      display: none;
+    }
+    /* Optionnel : animation de fade-in pour les confettis */
+    #confettis.visible {
+      display: block;
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0;}
+      to { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <!-- Mets ton PDF à la racine du projet -->
-  <embed src="invitation.pdf" type="application/pdf" class="carte">
+  <div class="parchemin-container">
+    <embed id="pdf" src="invitation.pdf" type="application/pdf" class="parchemin">
+    <canvas id="confettis"></canvas>
+  </div>
+  <script>
+    // Animation de déroulement du parchemin
+    window.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        document.getElementById('pdf').classList.add('visible');
+      }, 500); // petit délai avant l'ouverture
+
+      // Affiche les confettis après l'animation du parchemin (2.5s = durée du scroll)
+      setTimeout(() => {
+        lancerConfettis();
+      }, 2800);
+    });
+
+    // Confettis simples en canvas (aucune dépendance)
+    function lancerConfettis() {
+      const canvas = document.getElementById('confettis');
+      canvas.classList.add('visible');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width = window.innerWidth;
+      const H = canvas.height = window.innerHeight;
+      const colors = ['#ff4e50','#f9d423','#1e90ff','#e1eec3','#ffb347','#f7cac9','#c8c8a9','#b5fffc','#a3d8f4','#f67280'];
+      const confettis = [];
+      const confettiCount = 75;
+      for(let i=0; i<confettiCount; i++) {
+        confettis.push({
+          x: Math.random() * W,
+          y: Math.random() * -H,
+          r: 8 + Math.random()*8,  // rayon
+          d: 8 + Math.random()*8,
+          color: colors[Math.floor(Math.random()*colors.length)],
+          tilt: Math.random()*10 - 5,
+          tiltAngle: 0,
+          tiltAngleIncremental: Math.random()*0.07 + 0.05,
+          speed: 2 + Math.random()*2
+        });
+      }
+      let animationFrame;
+      function draw() {
+        ctx.clearRect(0,0,W,H);
+        confettis.forEach(c => {
+          ctx.beginPath();
+          ctx.lineWidth = c.d / 3;
+          ctx.strokeStyle = c.color;
+          ctx.moveTo(c.x + c.tilt + c.r/3, c.y);
+          ctx.lineTo(c.x + c.tilt, c.y + c.r);
+          ctx.stroke();
+        });
+        update();
+        animationFrame = requestAnimationFrame(draw);
+      }
+      function update() {
+        confettis.forEach(c => {
+          c.y += c.speed;
+          c.x += Math.sin(c.y * 0.02) * 2;
+          c.tiltAngle += c.tiltAngleIncremental;
+          c.tilt = Math.sin(c.tiltAngle) * 12;
+          if (c.y > H) {
+            c.y = -10;
+            c.x = Math.random() * W;
+            c.tilt = Math.random()*10 - 5;
+          }
+        });
+      }
+      draw();
+      // Arrête les confettis après 4 secondes
+      setTimeout(() => {
+        cancelAnimationFrame(animationFrame);
+        ctx.clearRect(0,0,W,H);
+        canvas.classList.remove('visible');
+      }, 4000);
+    }
+  </script>
 </body>
 </html>

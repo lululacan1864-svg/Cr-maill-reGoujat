@@ -11,7 +11,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: url('https://i.gifer.com/7VE.gif') center center / cover no-repeat fixed;
+      background: url('https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnMzNXVyMWYxaWY0bzRqZzFtZTluYjdyc2hyb2QxMnMyeWMxYzR0NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/HEd9G2nA94DE4/giphy.gif') center center / cover no-repeat fixed;
       font-family: 'Cormorant Garamond', serif;
       overflow: hidden;
       position: relative;
@@ -35,26 +35,13 @@
       align-items: center;
       overflow: hidden;
       position: relative;
-    }
-    .parchemin-img {
-      width: 95%;
-      max-width: 95%;
-      max-height: 85vh;
-      object-fit: contain;
-      object-position: top center;
-      border-radius: 16px 16px 20px 20px;
-      box-shadow: 0 4px 30px 1px rgba(80,40,10,0.09);
-      background: transparent;
+      /* Animation déroulement */
       transform: scaleY(0);
       opacity: 0;
-      animation: derouler 2.7s cubic-bezier(0.77,0,0.175,1) forwards;
+      animation: deroulerCadre 2.7s cubic-bezier(0.77,0,0.175,1) forwards;
       transform-origin: top center;
-      transition: box-shadow 1s;
     }
-    .parchemin-img.visible {
-      box-shadow: 0 16px 40px 4px rgba(150,110,50,0.14),0 2px 16px #d0b888;
-    }
-    @keyframes derouler {
+    @keyframes deroulerCadre {
       0% {
         transform: scaleY(0);
         opacity: 0;
@@ -66,6 +53,20 @@
         transform: scaleY(1);
         opacity: 1;
       }
+    }
+    .parchemin-img {
+      width: 95%;
+      max-width: 95%;
+      max-height: 85vh;
+      object-fit: contain;
+      object-position: top center;
+      border-radius: 16px 16px 20px 20px;
+      box-shadow: 0 4px 30px 1px rgba(80,40,10,0.09);
+      background: transparent;
+      transition: box-shadow 1s;
+    }
+    .parchemin-img.visible {
+      box-shadow: 0 16px 40px 4px rgba(150,110,50,0.14),0 2px 16px #d0b888;
     }
     #confettis {
       position: absolute;
@@ -84,27 +85,14 @@
       to { opacity: 1; }
     }
   </style>
-  <!-- Police élégante pour l'ambiance -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="parchemin-container">
-    <!-- Mets ton image convertie du PDF ici : invitation.png ou invitation.jpg -->
-    <img id="parchemin" src="invitation.jpg" alt="Invitation" class="parchemin-img">
+  <div class="parchemin-container" id="parchemin-container">
+    <img id="parchemin" src="invitation-jpg.jpg" alt="Invitation" class="parchemin-img">
     <canvas id="confettis"></canvas>
   </div>
   <script>
-    // Affiche l'image déroulée puis confettis
-    window.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        document.getElementById('parchemin').classList.add('visible');
-      }, 200); // petit délai avant l'ouverture
-
-      setTimeout(() => {
-        lancerConfettis();
-      }, 2700); // confettis après l'animation du déroulement (2.7s)
-    });
-
     // Confettis simples en canvas (aucune dépendance)
     function lancerConfettis() {
       const canvas = document.getElementById('confettis');
@@ -162,6 +150,18 @@
         canvas.classList.remove('visible');
       }, 4000);
     }
+
+    // Pour déclencher confettis à la fin de l'animation du cadre
+    window.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        // Ajoute ombre image (optionnel, purement esthétique)
+        document.getElementById('parchemin').classList.add('visible');
+      }, 200);
+
+      setTimeout(() => {
+        lancerConfettis();
+      }, 2700);
+    });
   </script>
 </body>
 </html>

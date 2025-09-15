@@ -7,10 +7,11 @@
     body {
       margin: 0;
       min-height: 100vh;
+      min-width: 100vw;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #ffdee9, #b5fffc);
+      background: url('https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif') center center / cover no-repeat fixed;
       font-family: sans-serif;
       overflow: hidden;
       position: relative;
@@ -19,33 +20,46 @@
       width: 60vw;
       max-width: 800px;
       height: 80vh;
-      min-height: 300px;
-      background: #f5e5b8;
+      background: rgba(245, 229, 184, 0.93);
       border-radius: 20px;
       box-shadow: 0 10px 50px rgba(0,0,0,0.2);
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
       overflow: hidden;
       position: relative;
       border: 8px solid #d2b48c;
+      background-image:
+        repeating-linear-gradient(90deg, #efd8b2 0px, #f5e5b8 18px, #efd8b2 36px),
+        repeating-linear-gradient(180deg, #efd8b2 0px, #e2c58b 12px, #efd8b2 24px);
+      background-blend-mode: multiply;
     }
     .parchemin {
       width: 100%;
-      height: 0;
-      opacity: 0;
-      transition:
-        height 2.5s cubic-bezier(0.77,0,0.175,1),
-        opacity 1.2s;
+      height: 100%;
       border: none;
       border-radius: 10px;
       box-shadow: 0 5px 25px rgba(0,0,0,0.08);
       background: transparent;
       display: block;
+      transform: scaleY(0);
+      opacity: 0;
+      animation: derouler 2.5s cubic-bezier(0.77,0,0.175,1) forwards;
+      /* Animation qui simule un vrai déroulement vertical */
+      transform-origin: top center;
     }
-    .parchemin.visible {
-      height: 72vh;
-      opacity: 1;
+    @keyframes derouler {
+      0% {
+        transform: scaleY(0);
+        opacity: 0;
+      }
+      15% {
+        opacity: 1;
+      }
+      100% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
     }
     #confettis {
       position: absolute;
@@ -55,7 +69,6 @@
       z-index: 10;
       display: none;
     }
-    /* Optionnel : animation de fade-in pour les confettis */
     #confettis.visible {
       display: block;
       animation: fadeIn 0.5s;
@@ -72,18 +85,6 @@
     <canvas id="confettis"></canvas>
   </div>
   <script>
-    // Animation de déroulement du parchemin
-    window.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        document.getElementById('pdf').classList.add('visible');
-      }, 500); // petit délai avant l'ouverture
-
-      // Affiche les confettis après l'animation du parchemin (2.5s = durée du scroll)
-      setTimeout(() => {
-        lancerConfettis();
-      }, 2800);
-    });
-
     // Confettis simples en canvas (aucune dépendance)
     function lancerConfettis() {
       const canvas = document.getElementById('confettis');
@@ -142,6 +143,13 @@
         canvas.classList.remove('visible');
       }, 4000);
     }
+
+    // Lance les confettis après l'animation du parchemin
+    window.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        lancerConfettis();
+      }, 2500); // confettis après l'animation du déroulement (2.5s)
+    });
   </script>
 </body>
 </html>

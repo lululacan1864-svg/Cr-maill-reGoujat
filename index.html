@@ -9,6 +9,7 @@
       min-height: 100vh;
       min-width: 100vw;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: url('https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW9sZGl3aTZiMWtsdGZhbmZnNnU5amJ2ZWV1bTRwYmdzNnM3ejZ1ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PkLlv7O5JZr8xMp5dy/giphy.gif') center center / cover no-repeat fixed;
@@ -16,6 +17,75 @@
       overflow: hidden;
       position: relative;
     }
+
+    /* ---- Banderole ---- */
+    .banderole-wrapper {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      width: 420px;
+      height: 140px;
+      pointer-events: none;
+    }
+    .corde {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 100px;
+      z-index: 101;
+      background: repeating-linear-gradient(180deg, #b59d6b 0px, #d8c497 7px, #b59d6b 14px);
+      border-radius: 2px;
+      box-shadow: 0 0 5px #d8c49744;
+    }
+    .banderole {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 420px;
+      min-height: 40px;
+      background: linear-gradient(90deg, #fffbe6 0%, #ffe0a8 100%);
+      border-radius: 0 0 32px 32px / 0 0 40px 40px;
+      box-shadow: 0 8px 16px #a98c6623;
+      border: 3px solid #e0c08a;
+      border-top: 7px solid #b89c60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #664b23;
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: descenteBanderole 2.2s cubic-bezier(.41,.67,.47,1.11) 0.6s forwards;
+      /* commence après 0.6s pour arriver juste avant le parchemin */
+      text-shadow: 0 2px 6px #e9e4d4, 0 1px 0 #fff7e5;
+      padding: 16px 18px 18px 18px;
+      pointer-events: none;
+    }
+    @keyframes descenteBanderole {
+      0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-40px) scaleY(0.6);
+      }
+      50% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(10px) scaleY(1.15);
+      }
+      70% {
+        transform: translateX(-50%) translateY(-4px) scaleY(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scaleY(1);
+      }
+    }
+
     .parchemin-container {
       width: 55vw;
       max-width: 700px;
@@ -35,11 +105,11 @@
       align-items: center;
       overflow: hidden;
       position: relative;
-      /* Animation déroulement */
       transform: scaleY(0);
       opacity: 0;
       animation: deroulerCadre 2.7s cubic-bezier(0.77,0,0.175,1) forwards;
       transform-origin: top center;
+      margin-top: 110px; /* pour laisser place à la banderole */
     }
     @keyframes deroulerCadre {
       0% {
@@ -69,11 +139,11 @@
       box-shadow: 0 16px 40px 4px rgba(150,110,50,0.14),0 2px 16px #d0b888;
     }
     #confettis {
-      position: absolute;
+      position: fixed;
       left: 0; top: 0;
       width: 100vw; height: 100vh;
       pointer-events: none;
-      z-index: 10;
+      z-index: 9999;
       display: none;
     }
     #confettis.visible {
@@ -88,70 +158,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="banderole-wrapper">
+    <div class="corde"></div>
+    <div class="banderole">
+      félicitations, nous avons le plaisir de vous convier à :
+    </div>
+  </div>
+  <canvas id="confettis"></canvas>
   <div class="parchemin-container" id="parchemin-container">
     <img id="parchemin" src="invitation-jpg.jpg" alt="Invitation" class="parchemin-img">
-    <canvas id="confettis"></canvas>
   </div>
   <script>
-    // Confettis simples en canvas (aucune dépendance)
+    // Confettis explosifs sur tout l'écran, durée longue
     function lancerConfettis() {
       const canvas = document.getElementById('confettis');
       canvas.classList.add('visible');
       const ctx = canvas.getContext('2d');
       const W = canvas.width = window.innerWidth;
       const H = canvas.height = window.innerHeight;
-      const colors = ['#ff4e50','#f9d423','#1e90ff','#e1eec3','#ffb347','#f7cac9','#c8c8a9','#b5fffc','#a3d8f4','#f67280'];
+      const colors = ['#ff4e50','#f9d423','#1e90ff','#e1eec3','#ffb347','#f7cac9','#c8c8a9','#b5fffc','#a3d8f4','#f67280','#FFD700','#FF69B4','#00FFB2','#FF8000'];
+      const confettiCount = 200; // plus de confettis
       const confettis = [];
-      const confettiCount = 75;
+      // "Explosion" du centre de l'écran
       for(let i=0; i<confettiCount; i++) {
+        const angle = (2 * Math.PI * i) / confettiCount;
+        const speed = 8 + Math.random()*6;
         confettis.push({
-          x: Math.random() * W,
-          y: Math.random() * -H,
-          r: 8 + Math.random()*8,
-          d: 8 + Math.random()*8,
+          x: W/2,
+          y: H/2,
+          vx: Math.cos(angle) * speed + (Math.random()-0.5)*2,
+          vy: Math.sin(angle) * speed + (Math.random()-0.5)*2,
+          r: 12 + Math.random()*15,
           color: colors[Math.floor(Math.random()*colors.length)],
-          tilt: Math.random()*10 - 5,
-          tiltAngle: 0,
-          tiltAngleIncremental: Math.random()*0.07 + 0.05,
-          speed: 2 + Math.random()*2
+          gravity: 0.35 + Math.random()*0.25,
+          opacity: 1
         });
       }
+      let start = performance.now();
       let animationFrame;
-      function draw() {
+      function draw(now) {
         ctx.clearRect(0,0,W,H);
         confettis.forEach(c => {
+          ctx.save();
+          ctx.globalAlpha = c.opacity;
           ctx.beginPath();
-          ctx.lineWidth = c.d / 3;
-          ctx.strokeStyle = c.color;
-          ctx.moveTo(c.x + c.tilt + c.r/3, c.y);
-          ctx.lineTo(c.x + c.tilt, c.y + c.r);
-          ctx.stroke();
+          ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI);
+          ctx.fillStyle = c.color;
+          ctx.fill();
+          ctx.restore();
         });
         update();
         animationFrame = requestAnimationFrame(draw);
+        // Stop after 10 seconds
+        if (now - start > 10000) {
+          cancelAnimationFrame(animationFrame);
+          ctx.clearRect(0,0,W,H);
+          canvas.classList.remove('visible');
+        }
       }
       function update() {
         confettis.forEach(c => {
-          c.y += c.speed;
-          c.x += Math.sin(c.y * 0.02) * 2;
-          c.tiltAngle += c.tiltAngleIncremental;
-          c.tilt = Math.sin(c.tiltAngle) * 12;
-          if (c.y > H) {
-            c.y = -10;
-            c.x = Math.random() * W;
-            c.tilt = Math.random()*10 - 5;
-          }
+          c.x += c.vx;
+          c.y += c.vy;
+          c.vy += c.gravity;
+          c.opacity -= 0.009;
+          if (c.opacity < 0) c.opacity = 0;
         });
       }
-      draw();
-      setTimeout(() => {
-        cancelAnimationFrame(animationFrame);
-        ctx.clearRect(0,0,W,H);
-        canvas.classList.remove('visible');
-      }, 4000);
+      draw(performance.now());
     }
 
-    // Pour déclencher confettis à la fin de l'animation du cadre
     window.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         document.getElementById('parchemin').classList.add('visible');
@@ -160,6 +236,13 @@
       setTimeout(() => {
         lancerConfettis();
       }, 2700);
+    });
+
+    // Pour bien couvrir toute la fenêtre même au resize
+    window.addEventListener('resize', function() {
+      const canvas = document.getElementById('confettis');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     });
   </script>
 </body>
